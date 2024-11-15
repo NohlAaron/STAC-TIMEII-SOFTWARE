@@ -9,8 +9,9 @@ Currently (11/8/24), we have a Naive solution to read 5 thermoresistor values. H
 1. Optimize the sensor reading
 2. Implement the heating pad Functionality
 3. Implement motor Functionality
-4. Implement a Final Loop to change between all 3 brainstormed phases. (See discord and slack to view whiteboard of procedure)
-5. Test out ideal R1 values, expected thermoresistor values during experiment, required accuracy for reading thermoresistor, and heating pad and motor timings. 
-6. Combine STM32 and Final PCB Board for the completed board
+4. Implement writing to SD Card
+5. Implement a Final Loop to change between all 3 brainstormed phases. (See discord and slack to view whiteboard of procedure)
+6. Test out ideal R1 values, expected thermoresistor values during experiment, required accuracy for reading thermoresistor, and heating pad and motor timings. 
+7. Combine STM32 and Final PCB Board for the completed board
 
 
