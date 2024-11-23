@@ -1,135 +1,146 @@
+/* This is currently TIME II's Main Control loop code. Right now, we currently have most of a phase 1 implementation complete.
+We should begin to work on Implementations of other phases and transistioning between each phase. Thermoresistor should
+use 3.3 Voltage Pins, heating pads + motors should use 5 V pins. 
+
+Complete:
+  -Reading Thermoresistors
+  -Turning on heatingPad (test with an actual pad instead of LED)
+  -Turning on Motors (test with actual motors instead of LED)
+  -Timer for Experiment
+
+TODOs:
+  -Implement Code to write to an SD Card
+    -Write data in a format that's easy to parse through + Make a table
+  -Implement Code to read OR Gate Voltage
+    -For swapping between all phases
+  -Discuss with Bio regarding the timings of each motor
+  -Discuss with Mech Motor Strength
+    -May not be able to leave a motor on to inject syringes, might have to
+    'shake' the syringe by repeatedly turning motors on and off
+*/
+
 #include <Arduino.h>
 
-int analogPin1 = PIN_A1;
-int analogPin2 = PIN_A2;
-int analogPin3 = PIN_A3;
-int analogPin4 = PIN_A4;
-int analogPin5 = PIN_A5;
+int resistorPins[] = {PIN_A1, PIN_A2, PIN_A3, PIN_A4, PIN_A5};
 int raw = 0;
-float Vin = 3.30;  // Adjust to 3.3 if that's your reference voltage
+float Vin = 3.30;  // for analog voltage pins
 float Vout = 0;
 float R1 = 100.0; // Known resistor value in ohms
 float R2 = 0;
 float buffer = 0;
 
+//int heatPad = GPIO_PIN_0;
+int motorPins[] = {GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5};
+#define heatPad LED_BUILTIN //temporary, just meant to simulate turning the pad on
+
+uint32_t timer_counter;
+TIM_HandleTypeDef htim2;
+
 void setup(){
+  pinMode(heatPad, LOW);
+   
+  HAL_Init();
+  SystemClock_Config();
+  __HAL_RCC_TIM2_CLK_ENABLE();
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 72 - 1; // Assuming 72MHz clock, prescaler gives 1µs resolution
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 0xFFFFFFFF; // Max period (32-bit counter)
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
+    while (1); // Initialization error
+  }
+  HAL_TIM_Base_Start(&htim2); // Start the timer
+
   Serial.begin(9600);
+  Serial.println("Started Timer.");
+}
+
+int readResistor(int pin){
+  raw = analogRead(pin);
+  if(raw){
+    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
+    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution  
+    if (Vout != 0) {              // Avoid division by zero
+      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
+      R2 = R1 * buffer;  
+      Serial.print("Vout pin" + String(pin) + ": ");
+      Serial.println(Vout);
+      Serial.print("R2 pin" + String(pin) + ": ");
+      Serial.println(R2);
+      
+    } else {
+      Serial.println("Vout is 0, unable to calculate R2.");
+    
+    }
+    delay(1000);
+    return R2;
+
+  } 
+  return 0;
+}
+
+void heatPads(int reading, int pin){
+  if (reading > 1000) {
+    Serial.println("resistor " + String(pin) + " is above 1000 ohms. Turning pad on...");
+    digitalWrite(heatPad, HIGH);
+    for(int x = 0; x < 5; x++){
+      Serial.print('.');
+      delay(1000);
+    }
+    Serial.println(" ");
+    Serial.println("heating pad off, retrieving next resistor read....");
+    digitalWrite(heatPad, LOW);
+
+  } else if (reading == 0){
+    Serial.println("resistor" + String(pin) + " reading fail, next resistor read....");
+
+  }
+    else {
+    Serial.println("resistor " + String(pin) + " is below 1000 ohms. next resistor read...");
+
+  }
+  delay(1500);
+
+}
+
+
+//TODO, currently returns motor timer but should include the 5 cases for each motors
+void motorTimer(){
+    timer_counter = __HAL_TIM_GET_COUNTER(&htim2);
+    float timeATM = timer_counter / 1000000.0; 
+    Serial.print("STM32 Timer: ");
+    Serial.print(timeATM, 6);
+    Serial.println(" seconds.");
 }
 
 void loop(){
-  raw = analogRead(analogPin1);
-  if(raw){
-    //Serial.print("raw read: ");
-    //Serial.println(raw);
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution
-    
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;
+  //phase 1 (checks every thermoresistor, turns pad on accordingly) :
+  while (true){ //will change condition once all phases are complete
+    for(int i = 0; i < 5; i++){
+      int reading = readResistor(resistorPins[i]);
+      heatPads(reading, resistorPins[i]);
       
-      Serial.print("Vout pin1: ");
-      Serial.println(Vout);
-      Serial.print("R2 pin1: ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
     }
-
-    delay(1000);
   }
-  raw = analogRead(analogPin2);
-  if(raw){
-    //Serial.print("raw read: ");
-    //Serial.println(raw);
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution
-    
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;
-      
-      Serial.print("Vout pin2: ");
-      Serial.println(Vout);
-      Serial.print("R2 pin2: ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
-    }
 
-    delay(1000);
+  //TODO
+  //phase 2(Continues phase 1 Procedure, now turns motors on in between):
+  while (false){ //will change condition once all phases are complete
+    for(int i = 0; i < 5; i++){
+      int reading = readResistor(resistorPins[i]);
+      heatPads(reading, resistorPins[i]);
+      
+      motorTimer();
+    }
   }
-  raw = analogRead(analogPin3);
-  if(raw){
-    //Serial.print("raw read: ");
-    //Serial.println(raw);
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution
-    
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;
-      
-      Serial.print("Vout pin3: ");
-      Serial.println(Vout);
-      Serial.print("R2 pin3: ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
-    }
 
-    delay(1000);
-  }
-  raw = analogRead(analogPin4);
-  if(raw){
-    //Serial.print("raw read: ");
-    //Serial.println(raw);
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution
-    
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;
-      
-      Serial.print("Vout pin4: ");
-      Serial.println(Vout);
-      Serial.print("R2 pin4: ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
-    }
+  //phase 3 (Converts back to phase 1 procedure):
+    while (false){ //will change condition once all phases are complete
+    for(int i = 0; i < 5; i++){
+      int reading = readResistor(resistorPins[i]);
+      heatPads(reading, resistorPins[i]);
 
-    delay(1000);
-  }
-  raw = analogRead(analogPin5);
-  if(raw){
-    //Serial.print("raw read: ");
-    //Serial.println(raw);
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution
-    
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;
-      
-      Serial.print("Vout pin5: ");
-      Serial.println(Vout);
-      Serial.print("R2 pin5: ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
     }
-
-    delay(1000);
   }
 }
