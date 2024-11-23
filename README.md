@@ -20,7 +20,6 @@ TODOs:
 4. Discuss with Mech the Motor Strength. May not be able to leave a motor on to inject syringes, might have to 'shake' the syringe by repeatedly turning motors on and off
 
 
-OLD UPDATES:
 (11/8/24): we have a Naive solution to read 5 thermoresistor values. Here are some steps to take in the future over the rest of Fall + next spring.
 
 1. Optimize the sensor reading
