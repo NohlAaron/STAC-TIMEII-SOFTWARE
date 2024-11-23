@@ -2,24 +2,14 @@
 We should begin to work on Implementations of other phases and transistioning between each phase. Thermoresistor should
 use 3.3 Voltage Pins, heating pads + motors should use 5 V pins. 
 
-Complete:
-  -Reading Thermoresistors
-  -Turning on heatingPad (test with an actual pad instead of LED)
-  -Turning on Motors (test with actual motors instead of LED)
-  -Timer for Experiment
-
-TODOs:
-  -Implement Code to write to an SD Card
-    -Write data in a format that's easy to parse through + Make a table
-  -Implement Code to read OR Gate Voltage
-    -For swapping between all phases
-  -Discuss with Bio regarding the timings of each motor
-  -Discuss with Mech Motor Strength
-    -May not be able to leave a motor on to inject syringes, might have to
-    'shake' the syringe by repeatedly turning motors on and off
 */
 
 #include <Arduino.h>
+
+//Included libaries regarding SD Card Writing, Can't do without SD Card slot to connect. Guide on SD Card writing at:
+// https://www.circuitbasics.com/writing-data-to-files-on-an-sd-card-on-arduino/ 
+#include <SD.h>
+#include <SPI.h>
 
 int resistorPins[] = {PIN_A1, PIN_A2, PIN_A3, PIN_A4, PIN_A5};
 int raw = 0;
