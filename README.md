@@ -7,22 +7,17 @@ https://platformio.org/
 UPDATE (11/22/2024): We have an optimized script for phase 1 to read Thermoresistor Values. We also included code regarding activating motors and heating pads + a timer to use during the actual Experiment. 
 So far these are the bullet points for everything accomplished so far + ToDos going forward.
 Complete:
-  -Reading Thermoresistors
-  -Turning on heatingPad (test with an actual pad instead of LED)
-  -Turning on Motors (test with actual motors instead of LED)
-  -Timer for Experiment
-  -Overall easier code to read
+1. Reading Thermoresistors
+2. Turning on heatingPad (test with an actual pad instead of LED)
+3. Turning on Motors (test with actual motors instead of LED)
+4. Timer for Experiment
+5. Overall easier code to read
 
 TODOs:
-  -Implement Code to write to an SD Card
-    -Write data in a format that's easy to parse through + Make a table
-  -Implement Code to read OR Gate Voltage
-    -For swapping between all phases, assuming we won't recieve flight data
-    -If we are for sure going to recieve flight data, ignore this.
-  -Discuss with Bio regarding the timings of each motor
-  -Discuss with Mech Motor Strength
-    -May not be able to leave a motor on to inject syringes, might have to
-    'shake' the syringe by repeatedly turning motors on and off
+1. Implement Code to write to an SD Card, make sure its written in a format easy to parse and make a table with
+2. Implement Code to read OR Gate Voltage, for swapping between all phases, assuming we won't recieve flight data. If we are for sure going to recieve flight data, ignore this.
+3. Implement Motor Timings. Discuss with Bio regarding the timings of each motor
+4. Discuss with Mech the Motor Strength. May not be able to leave a motor on to inject syringes, might have to 'shake' the syringe by repeatedly turning motors on and off
 
 
 
