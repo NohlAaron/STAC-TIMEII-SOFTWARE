@@ -4,6 +4,11 @@ This code uses an STM32 Nucleo F446RE Board to Read thermoresistor values, and t
 To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32. For more information on how to install and use PlatformIO, visit this link: 
 https://platformio.org/
 
+(4/5/2024): Added stepper motor control for the Clinostat, also as an update regarding the Main Motor Control, we will need to read an IMU value instead of In flight data. Should be easier to implement though.
+The rest of our ToDos be the same other than that.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE (11/22/2024): We have an optimized script for phase 1 to read Thermoresistor Values. We also included code regarding activating motors and heating pads + a timer to use during the actual Experiment. 
 So far these are the bullet points for everything accomplished so far + ToDos going forward.
 Complete:
