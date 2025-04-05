@@ -6,6 +6,10 @@ https://platformio.org/
 
 (4/5/2024): Added stepper motor control for the Clinostat, also as an update regarding the Main Motor Control, we will need to read an IMU value instead of In flight data. Should be easier to implement though.
 The rest of our ToDos be the same other than that.
+ToDos:
+1. Reading IMU + Timers
+2. Writing data to an SD Card
+3. Test Completed Code with a setup
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
