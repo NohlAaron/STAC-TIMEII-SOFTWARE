@@ -9,11 +9,11 @@ To edit or make this file, we recommend using VS Code's PlatformIO Extension to 
 https://platformio.org/
 
 UPDATE (7/2/2025): We have officially moved over to elegoo Nano. Here are some of the remaining tasks to complete before assembly + testing later this month:
--Finish SD Card Writing
--Implement IMU Reading (IMU not currently in Snode)
--Test Servo Motors + Heat Pads with 9V Batteries
--Retest Analog Sensor Readings
--LAST: replace usb power with 5V
+1. Finish SD Card Writing
+2. Implement IMU Reading (IMU not currently in Snode)
+3. Test Servo Motors + Heat Pads with 9V Batteries
+4. Retest Analog Sensor Readings
+5. LAST: replace usb power with 5V
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
