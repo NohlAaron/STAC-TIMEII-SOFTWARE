@@ -8,14 +8,19 @@ STACMOTORCONTROL is all code related to operating our Clinostat
 To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32/Elegoo Nano. For the Nano, Arduino IDE works fine as you should be able to copy-paste the main.cpp files. For more information on how to install and use PlatformIO, visit this link: 
 https://platformio.org/
 
+UPDATE(7/29/2025): Here are the updated TODOs:
+1. Implement Heat pad with transistor testing
+2. Assemble final loop code
+3. Assemble final electrical Component
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE (7/2/2025): We have officially moved over to elegoo Nano. Here are some of the remaining tasks to complete before assembly + testing later this month:
 1. Finish SD Card Writing
 2. Implement IMU Reading (IMU not currently in Snode)
 3. Test Servo Motors + Heat Pads with 9V Batteries
 4. Retest Analog Sensor Readings
 5. LAST: replace usb power with 5V
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 (4/5/2025): Added stepper motor control for the Clinostat, also as an update regarding the Main Motor Control, we will need to read an IMU value instead of In flight data. Should be easier to implement though than either flight data or reading gate voltages, and less unpredictable than timers. Here are our current toDos.
 TODOS:
