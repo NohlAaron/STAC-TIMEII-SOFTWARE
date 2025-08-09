@@ -4,136 +4,195 @@
 #include <SPI.h>
 
 /* This is currently TIME II's Main Control loop code. Right now, we currently have most of a phase 1 implementation complete.
-We should begin to work on Implementations of other phases and transistioning between each phase. Thermoresistor should
-use 3.3 Voltage Pins, heating pads + motors should use 5 V pins. 
+We should begin to work on Implementations of other phases and transistioning between each phase. */
 
-Included libaries regarding SD Card Writing, Can't do without SD Card slot to connect. Guide on SD Card writing at:
-https://www.circuitbasics.com/writing-data-to-files-on-an-sd-card-on-arduino/ 
 
-7/2/25: This has been ported over to an elegoo Nano. Should test the thermoresistors to make sure the analog calculations are still correct
-There is servo stuff here, but cant be finished until I get a battery clip for the servo + heat pads, I also need the IMU before I can do that
-MAIN ToDos:
-  -IMU testing
-  -SD Card Writing
-  -Servo Motors + Heater Pads (requires 9v pads)
-*/
-int resistorPins[] = {A1, A2, A3, A4, A5};
+int resistorPin = A1;
 int raw = 0;
-float Vin = 3.30;  // for analog voltage pins
+float Vin = 5;  // for analog voltage pins
 float Vout = 0;
-float R1 = 100.0; // Known resistor value in ohms
+float R1 = 3300; // Known resistor value in ohms
 float R2 = 0;
 float buffer = 0;
 
-//int heatPad = GPIO_PIN_0;
-int heatPads[] = {2,3,4,5,6};
-int motorPins[] = {7,8};
-#define heatPad LED_BUILTIN //temporary, just meant to simulate turning the pad on
+#define HEATPAD_PIN 5
+int motorPins[] = {2,3};
+
+File dataFile;
+const int chipSelect = 4;
 
 Servo servo1, servo2;
-int angle = 0;     // variable to store the servo position
-int step = 1;      // increment step
-
-
 
 void setup() {
   servo1.attach(motorPins[0]);
   servo2.attach(motorPins[1]);
+  pinMode(HEATPAD_PIN, OUTPUT);
+
+  Serial.begin(9600);
+  Serial.println("Started Timer.");
+
+  if (!SD.begin(chipSelect)) {
+    Serial.println("SD card initialization failed!");
+    return;
+  }
+
+  Serial.println("SD card initialized.");
+  delay(100);
+
+  dataFile = SD.open("DATAFILE.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println("File Opened! This is the temperature data for TIME II!");
+    dataFile.println("Waiting 8 seconds to initalize...");
+    Serial.println("File opened successfully.");
+    Serial.println("waiting 8 seconds to initalize....");
+    delay(8000);
+  } else {
+    Serial.println("Failed to open file.");
+  }
+  dataFile.close();
 
 
-  pinMode(13, OUTPUT);
 }
 
 float readResistor(int pin){
-  raw = analogRead(pin);
-  if(raw){
-    buffer = raw * Vin;           // Calculate ADC output in terms of voltage
-    Vout = buffer / 1023.0;       // 4096.0 for 12-bit resolution  
-    if (Vout != 0) {              // Avoid division by zero
-      buffer = (Vin / Vout) - 1;  // Calculate R2 based on Vout
-      R2 = R1 * buffer;  
-      Serial.print("Vout pin" + String(pin) + ": ");
-      Serial.println(Vout);
-      Serial.print("R2 pin" + String(pin) + ": ");
-      Serial.println(R2);
-      
-    } else {
-      Serial.println("Vout is 0, unable to calculate R2.");
-    
-    }
-    delay(1000);
-    return R2;
+  delay(10); // settle voltage
+  int sum = 0;
+  analogRead(pin); // throwaway
+  for (int i = 0; i < 20; i++) {
+    sum += analogRead(pin);
+    delay(2);  // allow minor settle
+  }
+  raw = sum / 20;
 
-  } 
-  return 0;
+  if (raw < 3 || raw > 1020) {
+    Serial.print("ADC extreme: ");
+    Serial.println(raw);
+    Serial.println("ADC out of range. Skipping...");
+    return 0;
+  }
+
+  float Vout = (raw / 1023.0) * Vin;
+  float buffer = Vout / (Vin - Vout);
+  float R2 = R1 * buffer;
+
+  Serial.print("Vout pin");
+  Serial.print(pin);
+  Serial.print(": ");
+  Serial.println(Vout, 3);
+
+  Serial.print("thermistor prediction");
+  Serial.print(pin);
+  Serial.print(": ");
+  Serial.println(R2, 2);
+
+  float expectedVout = Vin * R2 / (R1 + R2);
+  Serial.print("Expected Vout for R2: ");
+  Serial.println(expectedVout, 3);
+
+  delay(500);
+  return R2;
 }
 
 void handleHeatPads(int reading, int pin){
-  if (reading > 1000) {
-    Serial.println("resistor " + String(pin) + " is above 1000 ohms. Turning pad on...");
-    digitalWrite(heatPad, HIGH);
-    for(int x = 0; x < 5; x++){
-      Serial.print('.');
-      delay(1000);
-    }
-    Serial.println(" ");
-    Serial.println("heating pad off, retrieving next resistor read....");
-    digitalWrite(heatPad, LOW);
+  if (reading > 5000) {
+    Serial.println("resistor " + String(pin) + " is above 5000 ohms. Turning pad on...");
+    digitalWrite(HEATPAD_PIN, HIGH); 
+    Serial.println("Heatpad On....");
+    delay(30000);  
+    digitalWrite(HEATPAD_PIN, LOW);   
+    Serial.println("Heatpad Off...");
 
   } else if (reading == 0){
-    Serial.println("resistor" + String(pin) + " reading fail, next resistor read....");
+    Serial.println("resistor" + String(pin) + " reading fail.");
+
+  } else {
+    Serial.println("resistor " + String(pin) + " is below 5000 ohms.");
 
   }
-    else {
-    Serial.println("resistor " + String(pin) + " is below 1000 ohms. next resistor read...");
+}
 
+void handleSDCard(int reading){
+  dataFile = SD.open("DATAFILE.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.print("Thermistor Reading: ");
+    dataFile.println(reading);
+    dataFile.flush();  // write to card
+    if(reading > 5000){
+      dataFile.println("Heatpad on for 30 seconds...");
+    }
+    dataFile.close(); 
+  } else {
+    Serial.println("File pointer is invalid.");
   }
-  delay(1500);
+}
+
+void handleMotors(int motor){
+  //TODO: Fix motor timings
+  if (motor == 0){
+    for (int pos = 0; pos <= 60; pos += 1) {
+      servo1.write(pos);
+      delay(15); // Small delay for smooth motion
+    }
+  } else {
+    for (int pos = 0; pos <= 60; pos += 1) {
+      servo2.write(pos);
+      delay(15);
+    }
+  }
 
 }
+void handleIMU(int pin){
+  //TODO: Fill in
+}
+
 
 void loop() {
   //phase 1 (checks every thermoresistor, turns pad on accordingly) :
-  while (false){ //will change condition once all phases are complete
-    for(int i = 0; i < 5; i++){
-      int reading = readResistor(resistorPins[i]);
-      handleHeatPads(reading, resistorPins[i]);
-      
-      //Include SD Card Writing Here
-      //Include IMU Reading Here
-    }
+  dataFile = SD.open("DATAFILE.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println("############################ PHASE 1 (Preload + Ascension) ############################");
+    Serial.println("File opened successfully. (phase 1)");
+  } else {
+    Serial.println("Failed to open file. (phase 1)");
+  }
+  dataFile.close();
+  while (true){ //TODO: Include IMU function
+    int reading = readResistor(resistorPin);
+    handleSDCard(reading);
+    handleHeatPads(reading, resistorPin);      
+    //Include IMU Reading Here
+ 
   }
 
-  //TODO
   //phase 2(Continues phase 1 Procedure, now turns motors on in between):
-  while (true){ //will change condition once all phases are complete
-    for(int i = 0; i < 5; i++){
-      int reading = readResistor(resistorPins[i]);
-      handleHeatPads(reading, resistorPins[i]);
+  dataFile = SD.open("DATAFILE.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println("Phase 1 over... starting Phase 2");
+    dataFile.println("############################ PHASE 2 (Injections) ############################");
+    Serial.println("File opened successfully. (phase 2)");
+  } else {
+    Serial.println("Failed to open file. (phase 2)");
+  }
+  dataFile.close();
+  while (false){ //TODO: Include IMU Function
+    //TODO: plan injection timings
 
-      //TODO: MOTOR WRITING
-      servo1.write(angle);     // set servo position
-      angle += step;            // update angle
-      if (angle <= 0 || angle >= 180) {
-        step = -step;           // reverse direction at limits
-      }
-
-      delay(15);  // delay for smooth motion (~60 deg/sec) 
-      
-      
-      //Include SD Card Writing Here
-      //Include IMU Reading Here
-    }
   }
 
-    //phase 3 (Converts back to phase 1 procedure):
-    while (false){ //will change condition once all phases are complete
-    for(int i = 0; i < 5; i++){
-      int reading = readResistor(resistorPins[i]);
-      handleHeatPads(reading, resistorPins[i]);
+  //phase 3 (Converts back to phase 1 procedure):
+  dataFile = SD.open("DATAFILE.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println("Phase 2 over... starting Phase 3");
+    dataFile.println("############################ PHASE 3 (Descension) ############################");
+    Serial.println("File opened successfully. (phase 3)");
+  } else {
+    Serial.println("Failed to open file. (phase 3)");
+  }
+  dataFile.close();
+  while (false){ //TODO: Set to True once IMU Function is implemented.
+    int reading = readResistor(resistorPin);
+    handleSDCard(reading);  
+    handleHeatPads(reading, resistorPin);
 
-      //Include SD Card Writing Here
-      //Include IMU Reading Here
-    }
   }
 }
