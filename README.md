@@ -3,17 +3,26 @@ STACLOOPNANO is a version of STACLOOP1 ported over to work with a Elegoo Nano Bo
 ^We will be using this version from now on.
 
 STACLOOP1 uses an STM32 Nucleo F446RE Board to Read thermoresistor values, and turn on heating pads and motors according to those values.
-STACMOTORCONTROL is all code related to operating our Clinostat
+STACMOTORCONTROL is all code related to operating our Clinostat.
+STACSERVOCONTROL is test code related to tuning and testing our servos.
+STACSDCONTROL is test code related to making test writes to an SD Card.
+STACHEATERCONTROL is test code related to testing the mosfet and heatpads.
 
 To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32/Elegoo Nano. For the Nano, Arduino IDE works fine as you should be able to copy-paste the main.cpp files. For more information on how to install and use PlatformIO, visit this link: 
 https://platformio.org/
 
 UPDATE(7/29/2025): Here are the updated TODOs:
+1. Tune Servos and plan Servo Timings
+2. Implement IMU Function for phase swapping
+3. Integrate IMU component to Breadboard.
+4.  Solder Thermistor to longer wires and heatpads together in series (electrical)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE(7/29/2025): Here are the updated TODOs:
 1. Implement Heat pad with transistor testing
 2. Assemble final loop code
 3. Assemble final electrical Component
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE (7/2/2025): We have officially moved over to elegoo Nano. Here are some of the remaining tasks to complete before assembly + testing later this month:
 1. Finish SD Card Writing
