@@ -3,6 +3,10 @@
 #include <SD.h>
 #include <SPI.h>
 
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_LSM6DS33.h>
+
 /* This is currently TIME II's Main Control loop code. Right now, we currently have most of a phase 1 implementation complete.
 We should begin to work on Implementations of other phases and transistioning between each phase. */
 
