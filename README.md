@@ -6,16 +6,19 @@ STACLOOP1 uses an STM32 Nucleo F446RE Board to Read thermoresistor values, and t
 STACMOTORCONTROL is all code related to operating our Clinostat.
 STACSERVOCONTROL is test code related to tuning and testing our servos.
 STACSDCONTROL is test code related to making test writes to an SD Card.
-STACHEATERCONTROL is test code related to testing the mosfet and heatpads.
+STACHEATPADCONTROL is test code related to testing the mosfet and heatpads.
+diagram.png is am image of what the electrical component will look like. 
 
-To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32/Elegoo Nano. For the Nano, Arduino IDE works fine as you should be able to copy-paste the main.cpp files. For more information on how to install and use PlatformIO, visit this link: 
+For the people onsite, both ground rails are connected together and the negative pins on all external batteries should go to ground. do NOT connect the power rails together, or put the 4.8V nano battery in either power rail. Connect that directly to the Vin rail. Wires will have tags as to what goes where. R_fixed is 3300k ohms.
+
+To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32/Elegoo Nano. For the Nano, Arduino IDE works fine as you should be able to copy-paste the main.cpp files. You may need to manually install libraries on Arduino IDE if you do so this way, so I personally recomend setting up PlatformIO and pulling the entire folders. For more information on how to install and use PlatformIO, visit this link: 
 https://platformio.org/
 
 UPDATE(7/29/2025): Here are the updated TODOs:
 1. Tune Servos and plan Servo Timings
 2. Implement IMU Function for phase swapping
 3. Integrate IMU component to Breadboard.
-4.  Solder Thermistor to longer wires and heatpads together in series (electrical)
+4.  Solder Thermistor to longer wires, heatpads together in series, and fuses to batteries (electrical)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
