@@ -15,8 +15,9 @@ https://platformio.org/
 
 UPDATE(8/12/2025): Here are the updated TODOs:
 1. Tune Servos and plan Servo Timings
-2. Solder Thermistor to longer wires, heatpads together in series, and fuses to batteries (electrical)
-3. prep elec box for shipping
+2. Tune thermistors
+3. Solder Thermistor to longer wires, heatpads together in series, and fuses to batteries (electrical)
+4. prep elec box for shipping
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
