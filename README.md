@@ -12,7 +12,7 @@ For the people onsite, both ground rails are connected together and the negative
 
 To edit or make this file, we recommend using VS Code's PlatformIO Extension to write code for the STM32/Elegoo Nano. For the Nano, Arduino IDE works fine as you should be able to copy-paste the main.cpp files. You may need to manually install libraries on Arduino IDE if you do so this way, so I personally recomend setting up PlatformIO and pulling the entire folders. For more information on how to install and use PlatformIO, visit this link: 
 https://platformio.org/
-UPDATE(8/11/2025): Here are the updated TODOs:
+UPDATE(8/12/2025): Here are the updated TODOs:
 1. Tune Servos and plan Servo Timings
 2. Solder Thermistor to longer wires, heatpads together in series, and fuses to batteries (electrical)
 3. prep elec box for shipping
